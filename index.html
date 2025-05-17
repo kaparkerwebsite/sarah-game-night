@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Who Knows Sarah Best?</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Roboto&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: radial-gradient(circle at center, #ffe8a1 0%, #ffd166 100%);
+            color: #333;
+            text-align: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+        h1 {
+            font-family: 'Bangers', cursive;
+            font-size: 4em;
+            color: #ff6700;
+            text-shadow: 4px 4px #3a3a3a;
+            margin-bottom: 40px;
+        }
+        .tv-frame {
+            position: relative;
+            width: 80%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+            background: #222;
+            border: 12px solid #ff6700;
+            border-radius: 50px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+        }
+        .scanlines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                to bottom,
+                rgba(0,0,0,0.05),
+                rgba(0,0,0,0.05) 2px,
+                transparent 2px,
+                transparent 4px
+            );
+            pointer-events: none;
+        }
+        .button {
+            background: linear-gradient(to bottom, #ff6700, #e85c00);
+            color: white;
+            padding: 15px 30px;
+            margin: 20px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.5em;
+            cursor: pointer;
+            box-shadow: 0 4px #bd3b00;
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+        .button:active {
+            box-shadow: none;
+            transform: translateY(4px);
+        }
+        .question {
+            font-size: 2.5em;
+            margin: 30px 0;
+            min-height: 120px;
+            color: #ffe8a1;
+        }
+        .cursor {
+            color: #ff6700;
+            animation: blink 1s infinite;
+        }
+        .commercial, .announcement {
+            font-size: 2em;
+            color: #ffd166;
+            margin: 30px 0;
+        }
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        @keyframes flicker {
+            0% { opacity: 1; }
+            5% { opacity: 0.8; }
+            10% { opacity: 1; }
+            15% { opacity: 0.9; }
+            20% { opacity: 1; }
+            100% { opacity: 1; }
+        }
+        .tv-screen {
+            animation: flicker 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎉 Who Knows Sarah Best? 🎉</h1>
+
+    <div class="tv-frame">
+        <div class="tv-screen" id="game">
+            <div id="question" class="question"></div>
+            <button class="button" onclick="startGame()">Start Game ➡️</button>
+        </div>
+        <div class="scanlines"></div>
+    </div>
+
+    <audio id="correctSound" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio>
+    <audio id="buzzSound" src="https://www.soundjay.com/buttons/sounds/button-10.mp3"></audio>
+    <audio id="transitionSound" src="https://www.soundjay.com/buttons/sounds/button-16.mp3"></audio>
+    <audio id="lobbyMusic" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" loop></audio>
+
+    <script>
+        const lobbyMusic = document.getElementById("lobbyMusic");
+
+        window.onload = function() {
+            lobbyMusic.play();
+        };
+
+        const introMessages = [
+            "🎤 Welcome contestants! Remember: Bribes are not accepted... unless it’s chocolate! 🍫",
+            "📢 Pro tip: If you don’t know the answer, say it with confidence. That’s half the game!",
+            "🎈 Warning: Excessive laughing may cause slight ab workouts. Proceed with caution!"
+        ];
+
+        const outroMessages = [
+            "🏆 Congratulations! You now hold the prestigious title of ‘Official Sarahologist!’ 🎓",
+            "🎬 Thanks for playing! Remember, what happens on game night... becomes family legend forever!",
+            "📣 Be sure to thank our sponsor: The Mysterious Missing Sock Society—still looking for its members! 🧦"
+        ];
+
+        const questions = [
+            ...introMessages,
+            "If Sarah were a breakfast food, she'd definitely be a _________, because ________.",
+            "Sarah’s official theme song should be ____________.",
+            "The strangest thing Sarah has ever Googled after midnight is probably _________.",
+            "Sarah walks into Target. She leaves with _________ but went in for _________.",
+            "Would Sarah rather: Wear Crocs to a job interview OR give a TED Talk titled 'The Existential Crisis of Avocado Toast'?",
+            "Commercial Break! Sponsored by 'Couch Potato Fitness: Burn Calories by Thinking About Exercise!' 🍟🛋️",
+            "Would Sarah rather: Be stuck in an elevator with a mime OR be trapped in a karaoke bar where every song is Bohemian Rhapsody?",
+            "Commercial Break! Brought to you by 'Invisible Umbrellas – Keeping You Dry in Your Imagination!' ☔✨",
+            "What’s Sarah’s secret superpower?",
+            "Recite a famous Sarah rant—extra points for dramatic flair!",
+            "Commercial Break! This round brought to you by 'Half-Charged Phones: Just Enough Battery to Give You Hope!' 🔋📱",
+            ...outroMessages
+        ];
+
+        let currentIndex = 0;
+
+        function typeWriter(text, i = 0) {
+            if (i < text.length) {
+                document.getElementById("question").innerHTML = text.substring(0, i + 1) + "<span class='cursor'>|</span>";
+                setTimeout(() => typeWriter(text, i + 1), 50);
+            } else {
+                document.getElementById("question").innerHTML = text;
+                playTransition();
+            }
+        }
+
+        function startGame() {
+            lobbyMusic.pause();
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentIndex < questions.length) {
+                playTransition();
+                const message = questions[currentIndex];
+
+                if (message.includes('Commercial Break!')) {
+                    showMessage(message, 'commercial');
+                } else if (introMessages.includes(message) || outroMessages.includes(message)) {
+                    showMessage(message, 'announcement');
+                } else {
+                    typeWriter(message);
+                }
+
+                currentIndex++;
+            } else {
+                typeWriter("🎊 That’s all! Time for the bonus lightning round! 🎊");
+            }
+        }
+
+        function showMessage(message, className) {
+            document.getElementById("question").innerHTML = `<div class='${className}'>📺 ${message}</div>`;
+            setTimeout(nextQuestion, 4000);
+        }
+
+        function playCorrect() {
+            document.getElementById("correctSound").play();
+        }
+
+        function playBuzz() {
+            document.getElementById("buzzSound").play();
+        }
+
+        function playTransition() {
+            document.getElementById("transitionSound").play();
+        }
+    </script>
+</body>
+</html>
