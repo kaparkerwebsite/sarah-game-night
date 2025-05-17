@@ -4,196 +4,283 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Who Knows Sarah Best?</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Roboto&family=Press+Start+2P&display=swap" rel="stylesheet">
-    <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            font-family: 'Press Start 2P', cursive;
-            background: radial-gradient(circle at center, #ffe8a1 0%, #ffd166 100%);
-            color: #333;
-            text-align: center;
-            overflow-x: hidden;
-        }
-        h1 {
-            font-size: 3em;
-            color: #ff6700;
-            text-shadow: 4px 4px #3a3a3a;
-            margin: 30px 0;
-        }
-        .tv-frame {
-            position: relative;
-            width: 90%;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 60px 20px;
-            background: #2d2d2d;
-            border: 16px solid #ff6700;
-            border-radius: 40px;
-            box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
-        }
-        .scanlines {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(
-                to bottom,
-                rgba(0, 0, 0, 0.05),
-                rgba(0, 0, 0, 0.05) 2px,
-                transparent 2px,
-                transparent 4px
-            );
-            pointer-events: none;
-        }
-        .button {
-            background: linear-gradient(to bottom, #ff6700, #e85c00);
-            color: white;
-            padding: 15px 30px;
-            margin: 20px;
-            border: none;
-            border-radius: 30px;
-            font-size: 1.2em;
-            cursor: pointer;
-            box-shadow: 0 4px #bd3b00;
-            transition: transform 0.1s, box-shadow 0.1s;
-        }
-        .button:active {
-            box-shadow: none;
-            transform: translateY(4px);
-        }
-        .question {
-            font-size: 1.6em;
-            margin: 30px 0;
-            min-height: 150px;
-            color: #ffe8a1;
-            overflow-y: auto;
-            max-height: 400px;
-            padding: 10px;
-        }
-        .cursor {
-            color: #ff6700;
-            animation: blink 1s infinite;
-        }
-        .commercial, .announcement {
-            font-size: 1.4em;
-            color: #ffd166;
-            margin: 30px 0;
-        }
-        @keyframes blink {
-            0% { opacity: 1; }
-            50% { opacity: 0; }
-            100% { opacity: 1; }
-        }
-        .tv-screen {
-            animation: flicker 2s infinite;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Monoton&family=Pacifico&family=Raleway:wght@400;700&family=DotGothic16&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>🎉 Who Knows Sarah Best? 🎉</h1>
-    <div class="tv-frame">
-        <div class="tv-screen" id="game">
-            <div id="question" class="question"></div>
-            <button class="button" onclick="startGame()">Start Game ➡️</button>
+    <div class="tv-container">
+        <img src="visuals/tv_frame.png" alt="Vintage TV Frame" class="tv-frame">
+        <div class="tv-screen">
+            <div id="game-content" class="scene lobby">
+                <h1 class="title">WHO KNOWS<br>SARAH BEST?</h1>
+                <button id="start-button" class="button">START GAME</button>
+            </div>
         </div>
-        <div class="scanlines"></div>
+        <div class="light-marquee">
+            <span class="light"></span>
+            <span class="light"></span>
+            <span class="light"></span>
+            <span class="light"></span>
+            <span class="light"></span>
+            <span class="light"></span>
+            <span class="light"></span>
+            <span class="light"></span>
+        </div>
     </div>
 
-    <audio id="correctSound" src="https://www.soundjay.com/buttons/sounds/button-3.mp3"></audio>
-    <audio id="buzzSound" src="https://www.soundjay.com/buttons/sounds/button-10.mp3"></audio>
-    <audio id="transitionSound" src="https://www.soundjay.com/buttons/sounds/button-16.mp3"></audio>
-    <audio id="lobbyMusic" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" loop></audio>
+    <audio id="lobby-music" src="sounds/lobby_music.mp3" loop></audio>
+    <audio id="correct-chime" src="sounds/correct_chime.mp3"></audio>
+    <audio id="buzzer" src="sounds/buzzer.mp3"></audio>
+    <audio id="retro-jingle" src="sounds/retro_jingle.mp3"></audio>
+    <audio id="audience-laugh" src="sounds/audience_laugh.mp3"></audio>
 
     <script>
-        const lobbyMusic = document.getElementById("lobbyMusic");
-        window.onload = function() {
-            lobbyMusic.play();
-        };
+        // Get references to HTML elements
+        const gameContent = document.getElementById('game-content');
+        const startButton = document.getElementById('start-button');
+        const lobbyMusic = document.getElementById('lobby-music');
+        const correctChime = document.getElementById('correct-chime');
+        const buzzer = document.getElementById('buzzer');
+        const retroJingle = document.getElementById('retro-jingle');
+        const audienceLaugh = document.getElementById('audience-laugh');
+        const tvScreen = document.querySelector('.tv-screen');
 
-        const introMessages = [
-            "🎤 Welcome contestants! Bribes are not accepted... unless it's chocolate! 🍫",
-            "📢 Pro tip: Don’t know the answer? Say it like you mean it!",
-            "🎈 Caution: Excessive laughing may result in accidental ab workouts!"
+        // Game variables
+        let currentQuestionIndex = 0;
+        let questions = [
+            {
+                question: "If Sarah were a breakfast food, she'd definitely be a _________, because ________.",
+                options: ["Pancakes / She's fluffy and comforting.", "Waffles / She has many layers.", "Oatmeal / She's warm and nourishing.", "A croissant / She's flaky but delightful."],
+                answer: 0
+            },
+            {
+                question: "Sarah’s official theme song should be ____________.",
+                options: ["Walking on Sunshine", "Don't Stop Believin'", "Bohemian Rhapsody", "I Will Survive"],
+                answer: 1
+            },
+            {
+                question: "The strangest thing Sarah has ever Googled after midnight is probably _________.",
+                options: ["Symptoms of a rare disease", "How to tie a specific knot", "The history of garden gnomes", "Why do cats knead?"],
+                answer: 2
+            },
+            {
+                question: "Sarah walks into Target. She leaves with _________ but went in for _________.",
+                options: ["Candles and snacks / Laundry detergent", "A new plant and throw pillows / Paper towels", "Random clearance items / Batteries", "All of the above / Just browsing"],
+                answer: 3
+            },
+            {
+                question: "Would Sarah rather: Wear Crocs to a job interview OR give a TED Talk titled “The Existential Crisis of Avocado Toast”?",
+                options: ["Wear Crocs", "Give the TED Talk"],
+                answer: 1
+            },
+            {
+                question: "Would Sarah rather: Be stuck in an elevator with a mime OR be trapped in a karaoke bar where every song is Bohemian Rhapsody?",
+                options: ["Elevator with a mime", "Karaoke bar with Bohemian Rhapsody"],
+                answer: 0
+            },
+            {
+                question: "What’s Sarah’s secret superpower?",
+                options: ["Invisibility", "The ability to read minds", "Always finding the shortest line", "Making anyone laugh"],
+                answer: 3
+            },
+            {
+                question: "Recite a famous Sarah rant—extra points for dramatic flair!",
+                options: ["*Sarah dramatically clears throat*", "*Sarah launches into an epic rant*", "*A montage of Sarah's past rants plays*", "Skip this question"],
+                answer: 1 // This will trigger a different display
+            }
         ];
+        let questionCounter = 0;
+        let score = 0;
 
-        const outroMessages = [
-            "🏆 Congrats! You’re now an ‘Official Sarahologist!’ 🎓",
-            "🎬 Thanks for playing! What happens tonight becomes family legend!",
-            "📣 Special thanks to our sponsor: The Mysterious Missing Sock Society 🧦"
-        ];
-
-        const questions = [
-            ...introMessages,
-            "If Sarah were a breakfast food, she'd definitely be a _________, because ________.",
-            "Sarah’s official theme song should be ____________.",
-            "The strangest thing Sarah has ever Googled after midnight is probably _________.",
-            "Sarah walks into Target. She leaves with _________ but went in for _________.",
-            "Would Sarah rather: Wear Crocs to a job interview OR give a TED Talk titled 'The Existential Crisis of Avocado Toast'?",
-            "Commercial Break! Sponsored by 'Couch Potato Fitness: Burn Calories by Thinking About Exercise!' 🍟🛋️",
-            "Would Sarah rather: Be stuck in an elevator with a mime OR be trapped in a karaoke bar playing Bohemian Rhapsody on loop?",
-            "Commercial Break! Brought to you by 'Invisible Umbrellas – Keeping You Dry in Your Imagination!' ☔✨",
-            "What’s Sarah’s secret superpower?",
-            "Recite a famous Sarah rant—extra points for dramatic flair!",
-            "Commercial Break! This round brought to you by 'Half-Charged Phones: Just Enough Battery to Give You Hope!' 🔋📱",
-            ...outroMessages
-        ];
-
-        let currentIndex = 0;
-
-        function typeWriter(text, i = 0) {
-            if (i < text.length) {
-                document.getElementById("question").innerHTML = text.substring(0, i + 1) + "<span class='cursor'>|</span>";
-                setTimeout(() => typeWriter(text, i + 1), 50);
-            } else {
-                document.getElementById("question").innerHTML = text;
-                playTransition();
+        // Function to display a scene
+        function showScene(sceneId) {
+            const scenes = document.querySelectorAll('.scene');
+            scenes.forEach(scene => {
+                scene.classList.add('hidden');
+                scene.classList.remove('fade-in', 'slide-in-right');
+            });
+            const currentScene = document.getElementById(sceneId);
+            if (currentScene) {
+                currentScene.classList.remove('hidden');
+                setTimeout(() => {
+                    currentScene.classList.add('fade-in');
+                }, 50);
             }
         }
 
-        function startGame() {
-            lobbyMusic.pause();
-            nextQuestion();
-        }
+        // Function to display a question
+        function showQuestion(index) {
+            if (index < questions.length) {
+                const questionData = questions[index];
+                const questionDiv = document.createElement('div');
+                questionDiv.classList.add('scene', 'question-scene');
+                questionDiv.innerHTML = `<h2 class="question">${questionData.question}</h2>`;
 
-        function nextQuestion() {
-            if (currentIndex < questions.length) {
-                playTransition();
-                const message = questions[currentIndex];
-
-                if (message.includes('Commercial Break!')) {
-                    showMessage(message, 'commercial');
-                } else if (introMessages.includes(message) || outroMessages.includes(message)) {
-                    showMessage(message, 'announcement');
+                if (index < 7) {
+                    const optionsGrid = document.createElement('div');
+                    optionsGrid.classList.add('options-grid');
+                    questionData.options.forEach((option, i) => {
+                        const button = document.createElement('button');
+                        button.classList.add('option-button');
+                        button.textContent = option;
+                        button.addEventListener('click', () => checkAnswer(i, index));
+                        optionsGrid.appendChild(button);
+                    });
+                    questionDiv.appendChild(optionsGrid);
                 } else {
-                    typeWriter(message);
+                    const rantButton = document.createElement('button');
+                    rantButton.classList.add('button');
+                    rantButton.textContent = "Proceed with Rant!";
+                    rantButton.addEventListener('click', () => {
+                        // Display a placeholder rant or trigger a different scene.
+                        const rantDiv = document.createElement('div');
+                        rantDiv.classList.add('scene', 'rant-scene');
+                        rantDiv.innerHTML = `<p style="font-size: 3vw; color: #333;">Sarah launches into a legendary rant about the injustices of mismatched socks! The audience is captivated by her passion and wit.</p>`;
+                        tvScreen.appendChild(rantDiv);
+                        setTimeout(()=> {
+                            showNextScene();
+                        }, 4000)
+
+                    });
+                    questionDiv.appendChild(rantButton);
                 }
 
-                currentIndex++;
+                tvScreen.appendChild(questionDiv);
+                // Trigger slide-in animation
+                setTimeout(() => {
+                    questionDiv.classList.add('slide-in-right');
+                }, 50);
             } else {
-                typeWriter("🎊 That’s all! Time for the bonus lightning round! 🎊");
+                showGameOver();
             }
         }
 
-        function showMessage(message, className) {
-            document.getElementById("question").innerHTML = `<div class='${className}'>📺 ${message}</div>`;
-            setTimeout(nextQuestion, 4000);
+        // Function to check the answer and show result
+        function checkAnswer(selectedIndex, questionIndex) {
+            const correctAnswerIndex = questions[questionIndex].answer;
+            if (selectedIndex === correctAnswerIndex) {
+                correctChime.play();
+                score++;
+                showResult(true);
+            } else {
+                buzzer.play();
+                showResult(false);
+            }
         }
 
-        function playCorrect() {
-            document.getElementById("correctSound").play();
+        // Function to display the result (correct or wrong)
+        function showResult(isCorrect) {
+            const resultDiv = document.createElement('div');
+            resultDiv.classList.add('scene', 'result-scene');
+            resultDiv.innerHTML = `<h2 class="title">${isCorrect ? 'Correct!' : 'Wrong!' }</h2>`;
+             if (isCorrect) {
+                resultDiv.innerHTML += `<p style="font-size: 3vw; color: #333;">Score: ${score}</p>`;
+             }
+            const nextButton = document.createElement('button');
+            nextButton.classList.add('button');
+            nextButton.textContent = 'Next';
+            nextButton.addEventListener('click', () => {
+                tvScreen.removeChild(resultDiv);
+                questionCounter++;
+                if (questionCounter === 5) {
+                    showCommercialBreak('couch_potato');
+                } else if (questionCounter === 6) {
+                    showCommercialBreak('invisible_umbrellas');
+                } else if (questionCounter === 8) {
+                    showCommercialBreak('half_charged');
+                } else {
+                    showNextQuestion();
+                }
+            });
+            resultDiv.appendChild(nextButton);
+            tvScreen.appendChild(resultDiv);
+            setTimeout(() => {
+                resultDiv.classList.add('fade-in');
+            }, 50);
         }
 
-        function playBuzz() {
-            document.getElementById("buzzSound").play();
+        // Function to display a commercial break
+        function showCommercialBreak(adName) {
+            retroJingle.play();
+            const commercialDiv = document.createElement('div');
+            commercialDiv.classList.add('scene', 'commercial-break');
+            let adImageSrc = '';
+            switch (adName) {
+                case 'couch_potato':
+                    adImageSrc = 'ads/macho_mush_ad.png';
+                    break;
+                case 'invisible_umbrellas':
+                    adImageSrc = 'ads/invisible_umbrella_ad.png';
+                    break;
+                case 'half_charged':
+                    adImageSrc = 'ads/half_charged_phone_ad.png';
+                    break;
+                case 'baking_bad':
+                    adImageSrc = 'ads/baking_bad_cookies_ad.png';
+                    break;
+                case 'mayo_naise':
+                    adImageSrc = 'ads/mayo_naise_ad.png';
+                    break;
+                default:
+                    adImageSrc = 'ads/mayo_naise_ad.png'; // Default ad
+                    break;
+            }
+            commercialDiv.innerHTML = `<img src="${adImageSrc}" alt="${adName} Ad" class="commercial-ad">`;
+            tvScreen.appendChild(commercialDiv);
+            setTimeout(() => {
+                commercialDiv.classList.add('fade-in');
+            }, 50);
+
+            setTimeout(() => {
+                tvScreen.removeChild(commercialDiv);
+                showNextQuestion();
+            }, 5000); // Show ad for 5 seconds
         }
 
-        function playTransition() {
-            document.getElementById("transitionSound").play();
+        // Function to display the next question
+        function showNextQuestion() {
+            tvScreen.innerHTML = ''; // Clear previous content
+            showQuestion(questionCounter);
         }
+
+        // Function to start the game
+        function startGame() {
+            lobbyMusic.pause();
+            tvScreen.classList.add('flicker');
+            setTimeout(() => {
+                tvScreen.classList.remove('flicker');
+                tvScreen.innerHTML = ''; // Clear start screen
+                questionCounter = 0;
+                score = 0;
+                showQuestion(questionCounter);
+            }, 500);
+        }
+
+        // Function to display the game over screen
+        function showGameOver() {
+            const gameOverDiv = document.createElement('div');
+            gameOverDiv.classList.add('scene', 'game-over');
+            gameOverDiv.innerHTML = `<h2 class="title">Game Over!</h2><p style="font-size: 3vw;">Final Score: ${score}/${questions.length}</p><button class="button" onclick="resetGame()">Play Again?</button>`;
+            tvScreen.appendChild(gameOverDiv);
+            setTimeout(() => {
+                gameOverDiv.classList.add('fade-in');
+            }, 50);
+        }
+
+        // Function to reset the game
+        function resetGame() {
+            tvScreen.innerHTML = '';
+            questionCounter = 0;
+            score = 0;
+            showScene('lobby');
+            lobbyMusic.play();
+        }
+
+        // Event listeners
+        startButton.addEventListener('click', startGame);
+        lobbyMusic.play(); // Start lobby music on load
     </script>
 </body>
 </html>
-
