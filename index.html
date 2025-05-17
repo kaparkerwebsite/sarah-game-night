@@ -4,33 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Who Knows Sarah Best?</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Roboto&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Roboto&family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Roboto', sans-serif;
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: 'Press Start 2P', cursive;
             background: radial-gradient(circle at center, #ffe8a1 0%, #ffd166 100%);
             color: #333;
             text-align: center;
-            padding: 20px;
-            overflow: hidden;
+            overflow-x: hidden;
         }
         h1 {
-            font-family: 'Bangers', cursive;
-            font-size: 4em;
+            font-size: 3em;
             color: #ff6700;
             text-shadow: 4px 4px #3a3a3a;
-            margin-bottom: 40px;
+            margin: 30px 0;
         }
         .tv-frame {
             position: relative;
-            width: 80%;
-            max-width: 800px;
+            width: 90%;
+            max-width: 900px;
             margin: 0 auto;
             padding: 60px 20px;
-            background: #222;
-            border: 12px solid #ff6700;
-            border-radius: 50px;
-            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            background: #2d2d2d;
+            border: 16px solid #ff6700;
+            border-radius: 40px;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
         }
         .scanlines {
             position: absolute;
@@ -40,8 +41,8 @@
             height: 100%;
             background: repeating-linear-gradient(
                 to bottom,
-                rgba(0,0,0,0.05),
-                rgba(0,0,0,0.05) 2px,
+                rgba(0, 0, 0, 0.05),
+                rgba(0, 0, 0, 0.05) 2px,
                 transparent 2px,
                 transparent 4px
             );
@@ -53,8 +54,8 @@
             padding: 15px 30px;
             margin: 20px;
             border: none;
-            border-radius: 50px;
-            font-size: 1.5em;
+            border-radius: 30px;
+            font-size: 1.2em;
             cursor: pointer;
             box-shadow: 0 4px #bd3b00;
             transition: transform 0.1s, box-shadow 0.1s;
@@ -64,31 +65,26 @@
             transform: translateY(4px);
         }
         .question {
-            font-size: 2.5em;
+            font-size: 1.6em;
             margin: 30px 0;
-            min-height: 120px;
+            min-height: 150px;
             color: #ffe8a1;
+            overflow-y: auto;
+            max-height: 400px;
+            padding: 10px;
         }
         .cursor {
             color: #ff6700;
             animation: blink 1s infinite;
         }
         .commercial, .announcement {
-            font-size: 2em;
+            font-size: 1.4em;
             color: #ffd166;
             margin: 30px 0;
         }
         @keyframes blink {
             0% { opacity: 1; }
             50% { opacity: 0; }
-            100% { opacity: 1; }
-        }
-        @keyframes flicker {
-            0% { opacity: 1; }
-            5% { opacity: 0.8; }
-            10% { opacity: 1; }
-            15% { opacity: 0.9; }
-            20% { opacity: 1; }
             100% { opacity: 1; }
         }
         .tv-screen {
@@ -98,7 +94,6 @@
 </head>
 <body>
     <h1>🎉 Who Knows Sarah Best? 🎉</h1>
-
     <div class="tv-frame">
         <div class="tv-screen" id="game">
             <div id="question" class="question"></div>
@@ -114,21 +109,20 @@
 
     <script>
         const lobbyMusic = document.getElementById("lobbyMusic");
-
         window.onload = function() {
             lobbyMusic.play();
         };
 
         const introMessages = [
-            "🎤 Welcome contestants! Remember: Bribes are not accepted... unless it’s chocolate! 🍫",
-            "📢 Pro tip: If you don’t know the answer, say it with confidence. That’s half the game!",
-            "🎈 Warning: Excessive laughing may cause slight ab workouts. Proceed with caution!"
+            "🎤 Welcome contestants! Bribes are not accepted... unless it's chocolate! 🍫",
+            "📢 Pro tip: Don’t know the answer? Say it like you mean it!",
+            "🎈 Caution: Excessive laughing may result in accidental ab workouts!"
         ];
 
         const outroMessages = [
-            "🏆 Congratulations! You now hold the prestigious title of ‘Official Sarahologist!’ 🎓",
-            "🎬 Thanks for playing! Remember, what happens on game night... becomes family legend forever!",
-            "📣 Be sure to thank our sponsor: The Mysterious Missing Sock Society—still looking for its members! 🧦"
+            "🏆 Congrats! You’re now an ‘Official Sarahologist!’ 🎓",
+            "🎬 Thanks for playing! What happens tonight becomes family legend!",
+            "📣 Special thanks to our sponsor: The Mysterious Missing Sock Society 🧦"
         ];
 
         const questions = [
@@ -139,7 +133,7 @@
             "Sarah walks into Target. She leaves with _________ but went in for _________.",
             "Would Sarah rather: Wear Crocs to a job interview OR give a TED Talk titled 'The Existential Crisis of Avocado Toast'?",
             "Commercial Break! Sponsored by 'Couch Potato Fitness: Burn Calories by Thinking About Exercise!' 🍟🛋️",
-            "Would Sarah rather: Be stuck in an elevator with a mime OR be trapped in a karaoke bar where every song is Bohemian Rhapsody?",
+            "Would Sarah rather: Be stuck in an elevator with a mime OR be trapped in a karaoke bar playing Bohemian Rhapsody on loop?",
             "Commercial Break! Brought to you by 'Invisible Umbrellas – Keeping You Dry in Your Imagination!' ☔✨",
             "What’s Sarah’s secret superpower?",
             "Recite a famous Sarah rant—extra points for dramatic flair!",
@@ -202,3 +196,4 @@
     </script>
 </body>
 </html>
+
